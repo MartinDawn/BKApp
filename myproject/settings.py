@@ -25,7 +25,7 @@ SECRET_KEY = 't62+_0uk3b&2q4yv%4s-&yzb3_-p3&gz#g7wqvu!=svguavdm^'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['BKApp.onrender.com']
+ALLOWED_HOSTS = ['bkapp-mp8l.onrender.com']
 
 
 # Application definition
