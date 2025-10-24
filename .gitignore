@@ -1,0 +1,7 @@
+# Bỏ qua file chứa các biến môi trường bí mật
+.env
+
+# Bỏ qua các file khác của Python/Django (nên có)
+__pycache__/
+db.sqlite3
+*.pyc

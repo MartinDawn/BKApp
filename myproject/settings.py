@@ -25,7 +25,7 @@ SECRET_KEY = 't62+_0uk3b&2q4yv%4s-&yzb3_-p3&gz#g7wqvu!=svguavdm^'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['bkapp-mp8l.onrender.com']
+ALLOWED_HOSTS = ['bkapp-mp8l.onrender.com', '127.0.0.1']
 
 
 # Application definition
@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'cloudinary_storage',
     'django.contrib.sites',
     'allauth',
     'allauth.account',
@@ -46,6 +47,10 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'dj_rest_auth',
     'dj_rest_auth.registration',
+    'users',
+    'store',
+    'cloudinary',
+    'django_filters',
 ]
 SITE_ID = 1
 AUTHENTICATION_BACKENDS = (
@@ -118,14 +123,30 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 
 import dj_database_url
 import os
+from dotenv import load_dotenv
+from pathlib import Path
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Thêm dòng này: Tải các biến từ file .env vào môi trường
+load_dotenv(BASE_DIR / '.env')
 
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL'),
+        default=os.environ.get('DATABASE_URL'), # Lấy từ file .env
         conn_max_age=600,
         ssl_require=True
     )
 }
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
+}
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+# CLOUDINARY_URL = 'cloudinary://424677389296186:mI6oIOBafY71vef5xAaNm9qzxYU@dfqojwmry'
+# myproject/settings.py
+
+
 
 
 
@@ -168,3 +189,6 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'

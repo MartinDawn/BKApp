@@ -15,13 +15,20 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from dj_rest_auth.registration.views import SocialLoginView
-from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
-from .views import GoogleLogin
-from .views import MeView
+
+from django.conf import settings
+from django.conf.urls.static import static
+
+from users.views import GoogleLogin, MeView
+    
 urlpatterns = [
+    path('admin/', admin.site.urls),
     path('auth/social/login/', GoogleLogin.as_view(), name='google_login'),
     path('api/me/', MeView.as_view(), name='me'),
+    path('api/', include('store.urls')),
+
 ]
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 # Google Sign-In SDK dành cho React Native để xử lý đăng nhập, bên dưới là client_id
 # 48475528916-v4j2qg40mtqlt256iige8pj4nrk0nr9h.apps.googleusercontent.com
