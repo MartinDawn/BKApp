@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'store',
     'cloudinary',
     'django_filters',
+    'drf_spectacular',
 ]
 SITE_ID = 1
 AUTHENTICATION_BACKENDS = (
@@ -81,10 +82,18 @@ SOCIALACCOUNT_ADAPTER = 'myproject.adapters.MySocialAccountAdapter'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',   # nếu dùng token mặc định của dj-rest-auth
+        # 'drf_spectacular.openapi.AutoSchema',
         # 'rest_framework.authentication.SessionAuthentication', # nếu muốn dùng session cookie
-    ]
+    ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
-
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'App trao đổi mua bán',
+    'DESCRIPTION': 'App trao đổi mua bán cho sinh viên Làng Đại Học',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    # Các cài đặt khác nếu cần (như Authentication)
+}
 MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',

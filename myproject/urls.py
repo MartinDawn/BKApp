@@ -20,12 +20,19 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from users.views import GoogleLogin, MeView
-    
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView  
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth/social/login/', GoogleLogin.as_view(), name='google_login'),
     path('api/me/', MeView.as_view(), name='me'),
     path('api/', include('store.urls')),
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+
+    # Endpoint giao diện Swagger UI (Giao diện phổ biến nhất)
+    path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+
+    # Endpoint giao diện Redoc (Giao diện thay thế, gọn gàng hơn)
+    path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 
 ]
 if settings.DEBUG:
