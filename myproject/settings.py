@@ -146,9 +146,16 @@ DATABASES = {
     'default': dj_database_url.config(
         default=os.environ.get('DATABASE_URL'), # Lấy từ file .env
         conn_max_age=600,
-        ssl_require=True
+        ssl_require=False
     )
 }
+db_url = os.environ.get('DATABASE_URL', '')
+
+if 'postgresql' in db_url and not DEBUG:
+    DATABASES['default']['OPTIONS'] = {'sslmode': 'require'}
+elif 'sqlite' in DATABASES['default']['ENGINE']:
+    if 'OPTIONS' in DATABASES['default']:
+        DATABASES['default']['OPTIONS'] = {}
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
     'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
