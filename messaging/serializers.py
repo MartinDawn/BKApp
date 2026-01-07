@@ -19,7 +19,7 @@ class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
         fields = ['id', 'sender', 'sender_name', 'sender_avatar', 'content', 'image', 'product', 'product_id', 'is_read', 'created_at']
-
+        read_only_fields = ['sender', 'id', 'created_at', 'is_read']
     def get_sender_avatar(self, obj):
         # Giả sử User có Profile, nếu không có thì trả về None
         # if hasattr(obj.sender, 'profile') and obj.sender.profile.avatar:

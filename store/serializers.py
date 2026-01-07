@@ -25,6 +25,7 @@ class ProductSerializer(serializers.ModelSerializer):
             'condition',         # Để GHI (ví dụ: 'US')
             'condition_display'  # Để ĐỌC (ví dụ: 'Đã qua sử dụng')
         ]
+        read_only_fields = ['seller', 'id', 'created_at']
 
     # Hàm to_representation (để sửa link ảnh) vẫn giữ nguyên
     def to_representation(self, instance):
