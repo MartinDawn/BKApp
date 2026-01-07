@@ -13,7 +13,11 @@ jobs:
       max-parallel: 4
       matrix:
         python-version: [3.12]
-
+    env:
+      SECRET_KEY: 'django-insecure-dummy-key-for-testing'
+      DEBUG: 'True'
+      DATABASE_URL: 'sqlite:///db.sqlite3' 
+      ALLOWED_HOSTS: '127.0.0.1,localhost'
     steps:
     - uses: actions/checkout@v3
     
