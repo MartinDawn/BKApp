@@ -29,5 +29,6 @@ jobs:
         
     - name: Run Tests with Coverage
       run: |
+        pip install coverage
         coverage run manage.py test
         coverage report
