@@ -10,6 +10,9 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
+from django.shortcuts import get_object_or_404
+from django.contrib.auth.models import User
 
 # --- Import serializer mới ---
 from .serializers import ProfileUpdateSerializer
@@ -74,3 +77,41 @@ class MeView(APIView):
         
         # Nếu dữ liệu không hợp lệ
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserDetailView(APIView):
+    """Trả về thông tin public của một user theo `user_id`.
+
+    Thông tin gồm: id, username, first_name, name, profile_picture,
+    address, rating, num_reviews. Email chỉ trả về nếu requester là chính
+    user hoặc staff.
+    """
+    permission_classes = [AllowAny]
+
+    def get(self, request, user_id):
+        user = get_object_or_404(User, id=user_id)
+
+        social = user.socialaccount_set.first()
+        extra = social.extra_data if social else {}
+
+        from users.models import Profile
+        profile, created = Profile.objects.get_or_create(user=user)
+
+        # Expose email only when requester is the same user or staff
+        email = None
+        if request.user.is_authenticated and (request.user.id == user.id or request.user.is_staff):
+            email = user.email
+
+        data = {
+            "id": user.id,
+            "email": email,
+            "username": user.username,
+            "first_name": user.first_name,
+            "profile_picture": extra.get("picture"),
+            "name": extra.get("name") or user.get_full_name(),
+            "address": profile.address,
+            "rating": profile.rating,
+            "num_reviews": profile.num_reviews,
+        }
+
+        return Response(data)

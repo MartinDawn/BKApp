@@ -19,12 +19,13 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
-from users.views import GoogleLogin, MeView
+from users.views import GoogleLogin, MeView, UserDetailView
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView  
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth/social/login/', GoogleLogin.as_view(), name='google_login'),
     path('api/me/', MeView.as_view(), name='me'),
+    path('api/users/<int:user_id>/', UserDetailView.as_view(), name='user-detail'),
     path('', include('store.urls')),
     path('', include('orders.urls')),
     path('', include('reviews.urls')),
