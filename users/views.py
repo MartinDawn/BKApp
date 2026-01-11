@@ -13,6 +13,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.permissions import AllowAny
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
+from django.conf import settings
 
 # --- Import serializer mới ---
 from .serializers import ProfileUpdateSerializer
@@ -20,6 +22,87 @@ from .serializers import ProfileUpdateSerializer
 
 class GoogleLogin(SocialLoginView):
     adapter_class = GoogleOAuth2Adapter
+    
+    def post(self, request, *args, **kwargs):
+        """Accept an `idToken` from frontend, verify with Google, create/get user and return DRF Token."""
+        id_token = None
+        # The frontend may send the token in various keys
+        for key in ("idToken", "id_token", "idtoken"):
+            if request.data.get(key):
+                id_token = request.data.get(key)
+                break
+
+        if not id_token:
+            return Response({"detail": "idToken is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Verify the token with Google's tokeninfo endpoint
+        resp = requests.get("https://oauth2.googleapis.com/tokeninfo", params={"id_token": id_token})
+        if resp.status_code != 200:
+            return Response({"detail": "Invalid idToken."}, status=status.HTTP_400_BAD_REQUEST)
+
+        payload = resp.json()
+
+
+        uid = payload.get("sub")
+        email = payload.get("email")
+        if not uid or not email:
+            return Response({"detail": "idToken missing required fields."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Require edu.vn email domain
+        if not email.lower().endswith("edu.vn"):
+            return Response({"detail": "Bạn phải dùng email sinh viên để đăng nhập và đăng kí."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Create or get a local user
+        username_base = email.split("@")[0]
+        username = username_base
+        # Ensure unique username
+        counter = 0
+        while User.objects.filter(username=username).exists():
+            counter += 1
+            username = f"{username_base}_{counter}"
+
+        user, created = User.objects.get_or_create(email=email, defaults={
+            "username": username,
+            "first_name": payload.get("given_name", ""),
+            "last_name": payload.get("family_name", ""),
+        })
+
+        if created:
+            user.set_unusable_password()
+            user.save()
+
+        # Update user fields if they are missing or changed
+        updated = False
+        if not user.first_name and payload.get("given_name"):
+            user.first_name = payload.get("given_name")
+            updated = True
+        if not user.last_name and payload.get("family_name"):
+            user.last_name = payload.get("family_name")
+            updated = True
+        if updated:
+            user.save()
+
+        # Create or update SocialAccount record so other parts of app can read extra_data
+        SocialAccount.objects.update_or_create(
+            user=user,
+            provider="google",
+            uid=uid,
+            defaults={"extra_data": payload},
+        )
+
+        # Create or get DRF Token
+        token, _ = Token.objects.get_or_create(user=user)
+
+        # Return token and a small user payload
+        return Response({
+            "key": token.key,
+            "user": {
+                "id": user.id,
+                "email": user.email,
+                "name": payload.get("name") or user.get_full_name(),
+                "profile_picture": payload.get("picture"),
+            },
+        })
     
 
 class MeView(APIView):
