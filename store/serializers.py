@@ -14,6 +14,8 @@ class ProductSerializer(serializers.ModelSerializer):
     # --- THÊM DÒNG NÀY ---
     # Trả về tên hiển thị (ví dụ: "Đã qua sử dụng")
     condition_display = serializers.CharField(source='get_condition_display', read_only=True)
+    # Trả về tên khu vực (ví dụ: "Khu A")
+    area_display = serializers.CharField(source='get_area_display', read_only=True)
 
     class Meta:
         model = Product
@@ -24,6 +26,7 @@ class ProductSerializer(serializers.ModelSerializer):
             # --- THÊM 2 TRƯỜNG NÀY ---
             'condition',         # Để GHI (ví dụ: 'US')
             'condition_display'  # Để ĐỌC (ví dụ: 'Đã qua sử dụng')
+            , 'area', 'area_display'
         ]
         read_only_fields = ['seller', 'id', 'created_at']
 

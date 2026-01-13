@@ -34,6 +34,12 @@ class Product(models.Model):
     
     # --- THÊM TRƯỜNG MỚI NÀY ---
     condition = models.CharField(max_length=2, choices=Condition.choices, default=Condition.USED)
+    # Khu vực trong làng đại học: A hoặc B (người dùng sẽ chọn khi đăng)
+    class Area(models.TextChoices):
+        A = 'A', 'Khu A'
+        B = 'B', 'Khu B'
+
+    area = models.CharField(max_length=1, choices=Area.choices, default=Area.A)
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

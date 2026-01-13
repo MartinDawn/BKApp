@@ -20,5 +20,6 @@ class ProductFilter(django_filters.FilterSet):
                   'price_min', 
                   'price_max',
                   'seller',
+                  'area',
                 #   'seller_username',
                   ]
